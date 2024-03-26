@@ -12,7 +12,7 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 public class BlogViewController {
-    private BlogService blogService;
+    private final BlogService blogService;
 
     @GetMapping("/articles")
     public String getArticles(Model model){

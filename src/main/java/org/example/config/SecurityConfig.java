@@ -8,14 +8,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -23,17 +21,17 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder(){
+    public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
 
     @Bean
     public AuthenticationManager authenticationManager(
-            UserDetailService userDetailService, BCryptPasswordEncoder bCryptPasswordEncoder
+            UserDetailService userDetailService, PasswordEncoder passwordEncoder
     ){
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(userDetailService);
-        authenticationProvider.setPasswordEncoder(bCryptPasswordEncoder);
+        authenticationProvider.setPasswordEncoder(passwordEncoder);
 
         ProviderManager providerManager = new ProviderManager(authenticationProvider);
         providerManager.setEraseCredentialsAfterAuthentication(false);
@@ -43,7 +41,10 @@ public class SecurityConfig {
 
     @Bean
     public WebSecurityCustomizer configure(){
-        return web -> web.ignoring().requestMatchers("/static/**");
+
+        return web -> web
+                .ignoring().requestMatchers("/static/**")
+                .and().ignoring().requestMatchers("/favicon.ico");
     }
 
     @Bean
@@ -57,7 +58,7 @@ public class SecurityConfig {
                             .anyRequest().authenticated()
                 )
                 .formLogin(
-                        formLogin -> formLogin.loginPage("/login").defaultSuccessUrl("/api/articles")
+                        formLogin -> formLogin.loginPage("/login").defaultSuccessUrl("/articles")
                 )
                 .logout(
                         logout -> logout.logoutSuccessUrl("/login").invalidateHttpSession(true)
