@@ -34,7 +34,7 @@ public class SecurityConfig {
         authenticationProvider.setPasswordEncoder(passwordEncoder);
 
         ProviderManager providerManager = new ProviderManager(authenticationProvider);
-        providerManager.setEraseCredentialsAfterAuthentication(false);
+        providerManager.setEraseCredentialsAfterAuthentication(true);
 
         return providerManager;
     }
@@ -61,9 +61,11 @@ public class SecurityConfig {
                         formLogin -> formLogin.loginPage("/login").defaultSuccessUrl("/articles")
                 )
                 .logout(
-                        logout -> logout.logoutSuccessUrl("/login").invalidateHttpSession(true)
+                        logout -> logout.logoutUrl("/logout").logoutSuccessUrl("/login").invalidateHttpSession(true)
                 )
                 .build();
+
+
     }
 
 
